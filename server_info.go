@@ -125,10 +125,11 @@ func (sn *SksNode) Minimize() {
 		sn.pageContent.Free()
 		sn.pageContent = nil
 	}
-	if sn.pageJson != nil {
-		sn.pageJson.Free()
-		sn.pageJson = nil
-	}
+	// TODO: work out how to free unstructured JSON object
+	//	if sn.pageJson != nil {
+	//		sn.pageJson.Free()
+	//		sn.pageJson = nil
+	//	}
 }
 
 func (sn *SksNode) Fetch() error {
