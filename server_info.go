@@ -111,7 +111,7 @@ func (sn *SksNode) Normalize() bool {
 		// Will be overriden from the spider later
 		sn.Distance = -1
 	}
-	sn.uriRel = "/pks/lookup?op=stats"
+	sn.uriRel = "/pks/lookup?op=stats&options=mr"
 	sn.uri = fmt.Sprintf("http://%s:%d%s", sn.Hostname, sn.Port, sn.uriRel)
 	sn.initialised = true
 	return true
@@ -285,12 +285,12 @@ func (sn *SksNode) Url() string {
 		return sn.uri
 	}
 	// JSON reloaded
-	return fmt.Sprintf("http://%s:%d/pks/lookup?op=stats", sn.Hostname, sn.Port)
+	return fmt.Sprintf("http://%s:%d/pks/lookup?op=stats&options=mr", sn.Hostname, sn.Port)
 }
 
 func NodeUrl(name string, sn *SksNode) string {
 	if sn != nil {
 		return sn.Url()
 	}
-	return fmt.Sprintf("http://%s:%d/pks/lookup?op=stats", name, *flSksPortHkp)
+	return fmt.Sprintf("http://%s:%d/pks/lookup?op=stats&options=mr", name, *flSksPortHkp)
 }
