@@ -18,6 +18,7 @@ package sks_spider
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -52,6 +53,7 @@ type SksNode struct {
 	Software       string
 	Keycount       int
 	pageContent    *htmlp.HtmlDocument
+	pageJson       map[string]interface{}
 	analyzeError   error
 
 	// And these are populated when converted into a HostMap
@@ -123,6 +125,10 @@ func (sn *SksNode) Minimize() {
 		sn.pageContent.Free()
 		sn.pageContent = nil
 	}
+	if sn.pageJson != nil {
+		sn.pageJson.Free()
+		sn.pageJson = nil
+	}
 }
 
 func (sn *SksNode) Fetch() error {
@@ -154,6 +160,14 @@ func (sn *SksNode) Fetch() error {
 	if err != nil {
 		return err
 	}
+	// try unmarshaling as JSON first
+	var foo map[string]interface{}
+	err = json.Unmarshal([]byte(buf), &foo)
+	if err == nil {
+		sn.pageJson = json
+		return nil
+	}
+	// otherwise assume it's an SKS-style HTML page
 	doc, err := htmlp.Parse(buf, htmlp.DefaultEncodingBytes, nil, htmlp.DefaultParseOption, htmlp.DefaultEncodingBytes)
 	if err != nil {
 		return err
@@ -242,39 +256,62 @@ func (sn *SksNode) Analyze() {
 		return
 	}
 
-	if mailsync, err := sn.plainRowsOf("Outgoing Mailsync Peers"); err == nil {
-		sn.MailsyncPeers = mailsync
-	}
-	if settings, err := sn.kvdictFromTable("Settings"); err == nil {
-		sn.Settings = settings
-	}
-	sn.Version = sn.Settings["Version"]
-	sn.Software = sn.Settings["Software"]
-	if res, err := sn.pageContent.Root().Search(`//h2[text()="Statistics"]`); err == nil {
-		content := res[0].NextSibling().Content()
-		if strings.HasPrefix(content, "Total number of keys") {
-			content = strings.TrimSpace(strings.SplitN(content, ":", 2)[1])
-			sn.Keycount, err = strconv.Atoi(content)
-			if err != nil {
-				sn.Keycount = -1
+	if sn.pageJson != nil {
+
+		for key, val := range sn.pageJson {
+			if valString, ok := val.(string); ok == true {
+				sn.Settings[strings.title(key)] = valString
 			}
 		}
-	}
 
-	if peers, err := sn.dictFromPlainRows("Gossip Peers"); err == nil {
-		sn.GossipPeerList = make([]string, len(peers))
-		var i = 0
-		for k := range peers {
-			sn.GossipPeerList[i] = k
-			i += 1
-		}
+		sn.Version = sn.Settings["Version"]
+		sn.Software = sn.Settings["Software"]
+		sn.Keycount = sn.Settings["Keycount"]
 
-		for _, k := range sn.GossipPeerList {
-			if strings.ContainsAny(peers[k], " \t") {
-				peers[k] = strings.Fields(peers[k])[0]
+		if peerMapArray, ok := sn.pageJson["Peers"].([]map[string]string); ok == true {
+			sn.GossipPeers = make(map[string]string, len(peerMapArray))
+			for k, peerMap := range peerMapArray {
+				sn.GossipPeers[peerMap["ReconAddr"]] = strings.SplitN(peerMap["ReconAddr"], ":", 2)[0]
 			}
 		}
-		sn.GossipPeers = peers
+
+	} else {
+
+		if mailsync, err := sn.plainRowsOf("Outgoing Mailsync Peers"); err == nil {
+			sn.MailsyncPeers = mailsync
+		}
+		if settings, err := sn.kvdictFromTable("Settings"); err == nil {
+			sn.Settings = settings
+		}
+		sn.Version = sn.Settings["Version"]
+		sn.Software = sn.Settings["Software"]
+		if res, err := sn.pageContent.Root().Search(`//h2[text()="Statistics"]`); err == nil {
+			content := res[0].NextSibling().Content()
+			if strings.HasPrefix(content, "Total number of keys") {
+				content = strings.TrimSpace(strings.SplitN(content, ":", 2)[1])
+				sn.Keycount, err = strconv.Atoi(content)
+				if err != nil {
+					sn.Keycount = -1
+				}
+			}
+		}
+
+		if peers, err := sn.dictFromPlainRows("Gossip Peers"); err == nil {
+			sn.GossipPeerList = make([]string, len(peers))
+			var i = 0
+			for k := range peers {
+				sn.GossipPeerList[i] = k
+				i += 1
+			}
+
+			for _, k := range sn.GossipPeerList {
+				if strings.ContainsAny(peers[k], " \t") {
+					peers[k] = strings.Fields(peers[k])[0]
+				}
+			}
+			sn.GossipPeers = peers
+		}
+
 	}
 
 	sn.Minimize()
