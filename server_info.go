@@ -264,7 +264,7 @@ func (sn *SksNode) Analyze() {
 			if valString, ok := val.(string); ok == true {
 				settings[strings.Title(key)] = valString
 			} else if valInt, ok := val.(int); ok == true {
-				settings[strings.Title(key)], _ = strconv.Itoa(valInt)
+				settings[strings.Title(key)] = strconv.Itoa(valInt)
 			}
 		}
 		sn.Settings = settings
