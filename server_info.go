@@ -285,7 +285,7 @@ func (sn *SksNode) Analyze() {
 			sn.GossipPeerList = make([]string, len(peerArray))
 			for i, peer := range peerArray {
 				if peerMap, ok := peer.(map[string]interface{}); ok == true {
-					if reconAddr, ok := peerMap["ReconAddr"].(string); ok == true {
+					if reconAddr, ok := peerMap["reconAddr"].(string); ok == true {
 						if strings.ContainsAny(reconAddr, ":") {
 							reconAddr = strings.Replace(reconAddr, ":", " ", 1)
 						}
