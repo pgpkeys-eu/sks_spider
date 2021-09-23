@@ -263,8 +263,8 @@ func (sn *SksNode) Analyze() {
 		for key, val := range sn.pageJson {
 			if valString, ok := val.(string); ok == true {
 				settings[strings.Title(key)] = valString
-			} else if valInt, ok := val.(int); ok == true {
-				settings[strings.Title(key)] = strconv.Itoa(valInt)
+			} else if valNum, ok := val.(float64); ok == true {
+				settings[strings.Title(key)], _ = strconv.ParseFloat(valNum, 64)
 			}
 		}
 		sn.Settings = settings
