@@ -125,7 +125,7 @@ func (sn *SksNode) Minimize() {
 		sn.pageContent.Free()
 		sn.pageContent = nil
 	}
-	// TODO: work out how to free unstructured JSON object
+	// TODO: work out how to Free() the unstructured JSON object
 	//	if sn.pageJson != nil {
 	//		sn.pageJson.Free()
 	//		sn.pageJson = nil
@@ -165,7 +165,7 @@ func (sn *SksNode) Fetch() error {
 	var foo map[string]interface{}
 	err = json.Unmarshal([]byte(buf), &foo)
 	if err == nil {
-		sn.pageJson = json
+		sn.pageJson = foo
 		return nil
 	}
 	// otherwise assume it's an SKS-style HTML page
@@ -261,13 +261,16 @@ func (sn *SksNode) Analyze() {
 
 		for key, val := range sn.pageJson {
 			if valString, ok := val.(string); ok == true {
-				sn.Settings[strings.title(key)] = valString
+				sn.Settings[strings.Title(key)] = valString
 			}
 		}
 
 		sn.Version = sn.Settings["Version"]
 		sn.Software = sn.Settings["Software"]
-		sn.Keycount = sn.Settings["Keycount"]
+		sn.Keycount, err = strconv.atoi(sn.Settings["Keycount"])
+		if err != nil {
+			sn.Keycount = -1
+		}
 
 		if peerMapArray, ok := sn.pageJson["Peers"].([]map[string]string); ok == true {
 			sn.GossipPeers = make(map[string]string, len(peerMapArray))
