@@ -289,8 +289,8 @@ func (sn *SksNode) Analyze() {
 						if strings.ContainsAny(reconAddr, ":") {
 							reconAddr = strings.Replace(reconAddr, ":", " ", 1)
 						}
-						sn.GossipPeers[reconAddr] = strings.Fields(reconAddr)[0]
-						sn.GossipPeerList[i] = reconAddr
+						sn.GossipPeers[strings.Fields(reconAddr)[0]] = strings.Fields(reconAddr)[1]
+						sn.GossipPeerList[i] = strings.Fields(reconAddr)[0]
 					}
 				}
 			}
