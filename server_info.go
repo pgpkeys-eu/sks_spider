@@ -259,7 +259,7 @@ func (sn *SksNode) Analyze() {
 
 	if sn.pageJson != nil {
 
-		settings = make(map[string]string), 10)
+		settings = make(map[string]string, 10)
 		for key, val := range sn.pageJson {
 			if valString, ok := val.(string); ok == true {
 				settings[strings.Title(key)] = valString
