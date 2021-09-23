@@ -264,7 +264,7 @@ func (sn *SksNode) Analyze() {
 			if valString, ok := val.(string); ok == true {
 				settings[strings.Title(key)] = valString
 			} else if valNum, ok := val.(float64); ok == true {
-				settings[strings.Title(key)], _ = strconv.ParseFloat(valNum, 64)
+				settings[strings.Title(key)] = strconv.Itoa(int(valNum))
 			}
 		}
 		sn.Settings = settings
