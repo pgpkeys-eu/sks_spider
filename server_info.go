@@ -263,6 +263,8 @@ func (sn *SksNode) Analyze() {
 		for key, val := range sn.pageJson {
 			if valString, ok := val.(string); ok == true {
 				settings[strings.Title(key)] = valString
+			} else if valString, ok := val.(int); ok == true {
+				settings[strings.Title(key)] = strings.Atoi(valString)
 			}
 		}
 		sn.Settings = settings
