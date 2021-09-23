@@ -287,6 +287,7 @@ func (sn *SksNode) Analyze() {
 				if peerMap, ok := peer.(map[string]interface{}); ok == true {
 					if reconAddr, ok := peerMap["reconAddr"].(string); ok == true {
 						if strings.ContainsAny(reconAddr, ":") {
+							// TODO: split this on the LAST colon, but only if there are no spaces (ipv6 parsing)
 							reconAddr = strings.Replace(reconAddr, ":", " ", 1)
 						}
 						sn.GossipPeers[strings.Fields(reconAddr)[0]] = strings.Fields(reconAddr)[1]
