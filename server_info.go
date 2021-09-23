@@ -275,8 +275,14 @@ func (sn *SksNode) Analyze() {
 
 		if peerMapArray, ok := sn.pageJson["Peers"].([]map[string]string); ok == true {
 			sn.GossipPeers = make(map[string]string, len(peerMapArray))
-			for _, peerMap := range peerMapArray {
-				sn.GossipPeers[peerMap["ReconAddr"]] = strings.SplitN(peerMap["ReconAddr"], ":", 2)[0]
+			sn.GossipPeerList = make([]string, len(peerMapArray))
+			for i, peerMap := range peerMapArray {
+				reconAddr := peerMap["ReconAddr"]
+				if strings.ContainsAny(reconAddr, ":") {
+					reconAddr = strings.Replace(reconAddr, ":", " ", 1)
+				}
+				sn.GossipPeers[reconAddr] = strings.Fields(reconAddr)[0]
+				sn.GossipPeerList[i] = reconAddr
 			}
 		}
 
