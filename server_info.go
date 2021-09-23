@@ -270,9 +270,9 @@ func (sn *SksNode) Analyze() {
 		sn.Version = sn.Settings["Version"]
 		sn.Software = sn.Settings["Software"]
 		err := error(nil)
-		sn.Keycount, err = strconv.Atoi(sn.Settings["Numkeys"])
+		sn.Keycount, err = sn.Settings["Numkeys"]
 		if err != nil {
-			sn.Keycount, err = strconv.Atoi(sn.Settings["Total"])
+			sn.Keycount, err = sn.Settings["Total"]
 			if err != nil {
 				sn.Keycount = -1
 			}
