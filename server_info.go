@@ -280,7 +280,7 @@ func (sn *SksNode) Analyze() {
 			}
 		}
 
-		if peerMapArray, ok := sn.pageJson["Peers"].([]map[string]string); ok == true {
+		if peerMapArray, ok := sn.pageJson["peers"].([]map[string]string); ok == true {
 			sn.GossipPeers = make(map[string]string, len(peerMapArray))
 			sn.GossipPeerList = make([]string, len(peerMapArray))
 			for i, peerMap := range peerMapArray {
