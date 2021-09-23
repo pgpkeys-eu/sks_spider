@@ -275,7 +275,7 @@ func (sn *SksNode) Analyze() {
 
 		if peerMapArray, ok := sn.pageJson["Peers"].([]map[string]string); ok == true {
 			sn.GossipPeers = make(map[string]string, len(peerMapArray))
-			for k, peerMap := range peerMapArray {
+			for _, peerMap := range peerMapArray {
 				sn.GossipPeers[peerMap["ReconAddr"]] = strings.SplitN(peerMap["ReconAddr"], ":", 2)[0]
 			}
 		}
